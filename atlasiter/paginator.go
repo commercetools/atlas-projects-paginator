@@ -1,4 +1,4 @@
-package atlaspaginator
+package atlasiter
 
 import (
 	"context"
@@ -10,27 +10,27 @@ const nextPage = "next"
 
 type projectPaginator struct {
 	client  *mongodbatlas.Client
-	next    int
+	page    int
 	hasNext bool
 }
 
-// NewProjectPaginator creates a new ProjectIterator.
-func NewProjectPaginator(client *mongodbatlas.Client) ProjectsIterator {
+// newProjectPaginator creates a new ProjectIterator.
+func newProjectPaginator(client *mongodbatlas.Client) projectsIterator {
 	return &projectPaginator{client, 0, true}
 }
 
-type ProjectsIterator interface {
-	Value(ctx context.Context) (*mongodbatlas.Projects, error)
-	Next() bool
+type projectsIterator interface {
+	value(ctx context.Context) (*mongodbatlas.Projects, error)
+	next() bool
 }
 
-// Next returns true if there is at least one more project page.
-func (iter *projectPaginator) Next() bool {
+// next returns true if there is at least one more project page.
+func (iter *projectPaginator) next() bool {
 	return iter.hasNext
 }
 
-// Value fetches the next page of Atlas Project Results.
-func (iter *projectPaginator) Value(ctx context.Context) (*mongodbatlas.Projects, error) {
+// value fetches the next page of Atlas Project Results.
+func (iter *projectPaginator) value(ctx context.Context) (*mongodbatlas.Projects, error) {
 	projects, err := iter.getNextPageOfProjects(ctx)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (iter *projectPaginator) Value(ctx context.Context) (*mongodbatlas.Projects
 func (iter *projectPaginator) getNextPageOfProjects(ctx context.Context) (projects *mongodbatlas.Projects, err error) {
 	if iter.hasNext {
 		projects, _, err = iter.client.Projects.GetAllProjects(ctx, &mongodbatlas.ListOptions{
-			PageNum: iter.next,
+			PageNum: iter.page,
 		})
 		if err != nil {
 			return nil, err
@@ -60,7 +60,7 @@ func (iter *projectPaginator) setNextPage(projects *mongodbatlas.Projects) {
 	for i := range projects.Links {
 		if projects.Links[i].Rel == nextPage {
 			iter.hasNext = true
-			iter.next += 1
+			iter.page += 1
 		}
 	}
 }

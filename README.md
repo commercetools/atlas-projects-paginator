@@ -1,4 +1,4 @@
-# Atlas Projects Paginator
+# Atlas Projects Paginator 📃
 
 Small helper to paginate projects from the Atlas API that is used in two of our internal projects.
 

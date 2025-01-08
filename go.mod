@@ -1,4 +1,4 @@
-module github.com/commercetools/atlas-projects-paginator
+module github.com/commercetools/mongodb-atlas-iterators
 
 go 1.23.4
 

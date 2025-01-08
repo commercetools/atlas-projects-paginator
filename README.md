@@ -1,6 +1,6 @@
-# Atlas Projects Paginator 📃
+# MongoDB Atlas Iterators 📃
 
-Small helper to iterate over projects from the Atlas API that is used in a couple of our internal projects.
+Small helper to iterate over resources from the Atlas API that is used in a couple of our internal projects.
 
 ## Usage
 

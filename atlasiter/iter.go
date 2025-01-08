@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/atlas/mongodbatlas"
 )
 
+// AllProjects returns an iterator that will yield all projects in the Atlas organization.
 func AllProjects(ctx context.Context, client *mongodbatlas.Client) iter.Seq2[*mongodbatlas.Project, error] {
 	return func(yield func(*mongodbatlas.Project, error) bool) {
 		for projects, err := range allProjectPages(ctx, client) {

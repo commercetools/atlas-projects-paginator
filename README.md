@@ -13,3 +13,7 @@ for project, err := range atlasiter.AllProjects(ctx, &client.Client) {
     // do whatever you want with your project
 }
 ```
+
+## License
+
+[MIT](./LICENSE-MIT)

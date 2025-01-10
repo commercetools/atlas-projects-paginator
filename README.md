@@ -5,7 +5,10 @@ Small helper to iterate over resources from the Atlas API that is used in a coup
 ## Usage
 
 ```go
-for project, err := range atlasiter.AllProjects(ctx, &client.Client) {
+projectsService := mongodbatlas.Client{...}.Projects
+ctx := context.Background()
+
+for project, err := range atlasiter.AllProjects(ctx, projectsService) {
     if err != nil {
         return nil, err
     }

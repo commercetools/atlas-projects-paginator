@@ -9,14 +9,14 @@ import (
 const nextPage = "next"
 
 type projectPaginator struct {
-	client  *mongodbatlas.Client
-	page    int
-	hasNext bool
+	projectsService ProjectsService
+	page            int
+	hasNext         bool
 }
 
 // newProjectPaginator creates a new ProjectIterator.
-func newProjectPaginator(client *mongodbatlas.Client) projectsIterator {
-	return &projectPaginator{client, 0, true}
+func newProjectPaginator(projectsService ProjectsService) projectsIterator {
+	return &projectPaginator{projectsService, 0, true}
 }
 
 type projectsIterator interface {
@@ -25,26 +25,26 @@ type projectsIterator interface {
 }
 
 // next returns true if there is at least one more project page.
-func (iter *projectPaginator) next() bool {
-	return iter.hasNext
+func (p *projectPaginator) next() bool {
+	return p.hasNext
 }
 
 // value fetches the next page of Atlas Project Results.
-func (iter *projectPaginator) value(ctx context.Context) (*mongodbatlas.Projects, error) {
-	projects, err := iter.getNextPageOfProjects(ctx)
+func (p *projectPaginator) value(ctx context.Context) (*mongodbatlas.Projects, error) {
+	projects, err := p.getNextPageOfProjects(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	iter.setNextPage(projects)
+	p.setNextPage(projects)
 
 	return projects, err
 }
 
-func (iter *projectPaginator) getNextPageOfProjects(ctx context.Context) (projects *mongodbatlas.Projects, err error) {
-	if iter.hasNext {
-		projects, _, err = iter.client.Projects.GetAllProjects(ctx, &mongodbatlas.ListOptions{
-			PageNum: iter.page,
+func (p *projectPaginator) getNextPageOfProjects(ctx context.Context) (projects *mongodbatlas.Projects, err error) {
+	if p.hasNext {
+		projects, _, err = p.projectsService.GetAllProjects(ctx, &mongodbatlas.ListOptions{
+			PageNum: p.page,
 		})
 		if err != nil {
 			return nil, err
@@ -54,13 +54,13 @@ func (iter *projectPaginator) getNextPageOfProjects(ctx context.Context) (projec
 	return projects, nil
 }
 
-func (iter *projectPaginator) setNextPage(projects *mongodbatlas.Projects) {
-	iter.hasNext = false
+func (p *projectPaginator) setNextPage(projects *mongodbatlas.Projects) {
+	p.hasNext = false
 
 	for i := range projects.Links {
 		if projects.Links[i].Rel == nextPage {
-			iter.hasNext = true
-			iter.page += 1
+			p.hasNext = true
+			p.page += 1
 		}
 	}
 }

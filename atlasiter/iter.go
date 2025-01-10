@@ -7,10 +7,14 @@ import (
 	"go.mongodb.org/atlas/mongodbatlas"
 )
 
+type ProjectsService interface {
+	GetAllProjects(context.Context, *mongodbatlas.ListOptions) (*mongodbatlas.Projects, *mongodbatlas.Response, error)
+}
+
 // AllProjects returns an iterator that will yield all projects in the Atlas organization.
-func AllProjects(ctx context.Context, client *mongodbatlas.Client) iter.Seq2[*mongodbatlas.Project, error] {
+func AllProjects(ctx context.Context, projectsService ProjectsService) iter.Seq2[*mongodbatlas.Project, error] {
 	return func(yield func(*mongodbatlas.Project, error) bool) {
-		for projects, err := range allProjectPages(ctx, client) {
+		for projects, err := range allProjectPages(ctx, projectsService) {
 			if err != nil {
 				yield(nil, err)
 				return
@@ -25,8 +29,8 @@ func AllProjects(ctx context.Context, client *mongodbatlas.Client) iter.Seq2[*mo
 	}
 }
 
-func allProjectPages(ctx context.Context, client *mongodbatlas.Client) iter.Seq2[*mongodbatlas.Projects, error] {
-	projectIterator := newProjectPaginator(client)
+func allProjectPages(ctx context.Context, projectsService ProjectsService) iter.Seq2[*mongodbatlas.Projects, error] {
+	projectIterator := newProjectPaginator(projectsService)
 
 	return func(yield func(*mongodbatlas.Projects, error) bool) {
 		for projectIterator.next() {

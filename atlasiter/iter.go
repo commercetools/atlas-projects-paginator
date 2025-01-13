@@ -7,6 +7,7 @@ import (
 	"go.mongodb.org/atlas/mongodbatlas"
 )
 
+// ProjectsService is a minimal interface for the Atlas projects service.
 type ProjectsService interface {
 	GetAllProjects(context.Context, *mongodbatlas.ListOptions) (*mongodbatlas.Projects, *mongodbatlas.Response, error)
 }
